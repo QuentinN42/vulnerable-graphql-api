@@ -49,13 +49,17 @@ app.use(session(
 
 app.use(GetCurrentUser);
 
-// Set up rate-limiting.
-// We wouldn't want anyone brute-forcing password reset tokens!
-const limiter = rateLimit({
-    windowMs:60 * 1000, // one minute
-    max: 100 // limit to 100 requests/minute
-});
-app.use(limiter);
+const rate = parseInt(process.env.RATE_LIMIT || "100");
+if(rate !== 0){
+    const limiter = rateLimit({
+        windowMs:60 * 1000, // one minute
+        max: rate || 100
+    });
+    app.use(limiter);
+    console.log(`Rate limit set to ${rate || 100} req/min.`)
+} else {
+    console.log(`Rate limit set to +inf req/min.`)
+}
 
 app.get('/', (_req,res) => {
     return res.redirect('/graphql');
@@ -66,4 +70,4 @@ app.use('/graphql', graphqlHTTP({
     graphiql: true
 }))
 
-app.listen(port, () => console.log("API started."));
+app.listen(port, () => console.log(`API started on http://0.0.0.0:${port}/`));

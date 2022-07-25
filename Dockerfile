@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 LABEL org.opencontainers.image.authors="aidan.noll@carvesystems.com"
 LABEL org.opencontainers.image.maintainer="quentin@escape.tech"
 
@@ -6,9 +6,17 @@ RUN apt-get update && apt-get install -y nodejs npm python3 sqlite3
 
 RUN useradd -m app
 USER app
+RUN mkdir -p /home/app/app
+WORKDIR /home/app/app
 
-COPY --chown=app . /home/app/app
+COPY --chown=app package.json .
 
-RUN cd /home/app/app && npm install sqlite3 && npm install && npm run tsc && npm run sequelize db:migrate && npm run sequelize db:seed:all
+RUN npm install sqlite3 && npm install
 
-CMD cd /home/app/app && ./run.sh
+COPY --chown=app . .
+
+RUN npm run tsc
+RUN npm run sequelize db:migrate
+RUN npm run sequelize db:seed:all
+
+CMD ./run.sh
