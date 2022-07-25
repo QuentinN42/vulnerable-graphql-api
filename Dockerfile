@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
-MAINTAINER Aidan Noll (aidan.noll@carvesystems.com)
-
+LABEL org.opencontainers.image.authors="aidan.noll@carvesystems.com"
+LABEL org.opencontainers.image.maintainer="quentin@escape.tech"
 
 RUN apt-get update && apt-get install -y nodejs npm python3 sqlite3
 
@@ -10,7 +10,5 @@ USER app
 COPY --chown=app . /home/app/app
 
 RUN cd /home/app/app && npm install sqlite3 && npm install && npm run tsc && npm run sequelize db:migrate && npm run sequelize db:seed:all
-
-EXPOSE 3000/tcp
 
 CMD cd /home/app/app && ./run.sh
